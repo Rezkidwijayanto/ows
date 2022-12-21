@@ -1,0 +1,162 @@
+﻿
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fa fa-list"></i> Request History</h5>
+                    </div>
+                    <div class="card-body">
+                        <table id="table_open" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th class="text-center">Workorder</th>
+                                    <th class="text-center">Request Type</th>
+                                    <th class="text-center">Request By</th>
+                                    <th class="text-center">Reason</th>
+                                    <th class="text-center">Deadline</th>
+                                    <th class="text-center">Family</th>
+                                    <th class="text-center">Comments</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Action</th>
+
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (OpenWorkOrder openWO in Model)
+                                {
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="WO_Detail('@openWO.Work_Order')">@openWO.Work_Order</button>
+                                    </td>
+                                    <td class="text-center align-middle">@openWO.Request_Type</td>
+                                    <td class="text-center align-middle">@openWO.Request_By</td>
+                                    <td class="text-center align-middle">@openWO.Reason</td>
+                                    <td class="text-center align-middle">@Html.FormatValue("MM/dd/yyyy", openWO.Deadline.ToString("MM/dd/yyyy"))</td>
+                                    <td class="text-center align-middle">@openWO.Family</td>
+                                    <td class="text-center align-middle">@openWO.Comment</td>
+                                    <td class="text-center align-middle">@openWO.Status</td>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-sm btn-danger" name="btn_delete" onclick="delete_data('@openWO.Work_Order')"><i class="fa fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ows -->
+<div id="modal_ows" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">OWS ID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="table_data" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                    <thead>
+                        <tr class="bg-success text-white">
+                            <th class="text-center align-middle">Code</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>            
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+
+        $(document).ready(function () {
+            $("#table_open").dataTable();
+        })
+
+
+        function WO_Detail(wo) {
+            $("#modal_ows").modal("show");
+            $("#table_data").DataTable({
+                pageResize: true,
+                "searching": false,
+                "paging": false,
+                "ajax": {   
+                    "type": "POST",
+                    "url": "@Url.Action("GetCodeData")",
+                    "data": { wo: wo },
+                    "dataSrc": "",
+                },
+                "columns": [
+                    { "data": "code" }
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0, // your case first column
+                        "className": "text-center"
+                    },
+                ]
+
+            });
+            $("#table_data").dataTable().fnDestroy();
+        }
+        $("table_data").css("th.dt - center", "td.dt - center", "{ text- align: center; }");
+
+        function delete_data(wo) {
+            Swal.fire({
+                    title: "Are you sure?",
+                    text: "You not be able recover this data!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    cancelButtonText: "No",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    showLoaderOnConfirm: true,
+                    preConfirm: function () {
+                        return new Promise(function (resolve, reject) {
+                             $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("DeleteWO")",
+                                data: {
+                                    wo:wo
+                                },
+                                dataType: "json",
+                                success: function (result) {
+                                    Swal.fire(
+                                        'Done!',
+                                        'Success Delete',
+                                        'success'
+                                    ).then(() => {
+                                        location.reload();
+                                    })
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    Swal.fire(
+                                        'Error!',
+                                        'Error Delete!',
+                                        'error'
+                                    ).then(() => {
+                                        location.reload();
+                                    })
+
+                                }
+                            })
+                        })
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                })
+        }
+
+    </script>
+}

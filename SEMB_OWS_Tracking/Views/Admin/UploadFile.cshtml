@@ -1,0 +1,162 @@
+﻿@model  List<SQLDatabaseModel>
+@{
+     ViewData["Title"] = "Data Management";
+}
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 col-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fas fa-table"></i> OWS Data</h5>
+                        <div class="card-tools">
+                            <ul class="nav">
+                                <li class="nav-item mr-1">
+                                    <a href="~/assets/Uploads/mst_data.xlsx" class="btn btn-danger">
+                                        <i class="fa fa-download"></i> Download Template
+                                    </a>
+                                </li>
+                                <li class="nav-item mr-1">
+                                    <a class="btn btn-info" data-toggle="modal" data-target="#ImportDataModel">
+                                        <i class="fa fa-upload"></i> Import
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table id="table_open" class="table table-sm table-bordered table-striped" style="font-size:8pt; width : 100%">
+                            <thead class="bg-success">
+                            <tr>
+                                <th>ID</th>
+                                <th>Product</th>
+                                <th>Family</th>
+                                <th>Format</th>
+                                <th>Operation Name</th>
+                                <th>Code</th>
+                                <th>Safety Required</th>
+                                <th>Critical Required</th>
+                                <th>Total Set</th>
+                                <th>No Pape</th>
+                                <th>Version</th>
+                                <th>Issued Date</th>
+                                <th>Sector</th>
+                                <th>Comment</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var data in Model)
+                                {
+                                    <tr>
+                                        <td>@data.STT</td>
+                                        <td>@data.Product</td>
+                                        <td>@data.Family</td>
+                                        <td>@data.Format</td>
+                                        <td>@data.Operation_Name</td>
+                                        <td class="text-center">
+                                            <button onclick="getDataDetailMaster('@data.Product', '@data.Family','@data.Code')" class="btn btn-sm bg-success" style="font-size:10pt;">@data.Code</button>
+                                        </td>
+                                        <td>@data.Safety_Required</td>
+                                        <td>@data.Critical_Required</td>
+                                        <td>@data.Total_Set</td>
+                                        <td>@data.No_Pape</td>
+                                        <td>@data.Version</td>
+                                        <td>@data.Issued_Date</td>
+                                        <td>@data.Sector</td>
+                                        <td>@data.comment</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ImportDataModel" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-file-import"></i> Upload Excel</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form enctype="multipart/form-data" method="post" asp-controller="Admin" asp-action="ImportFile">
+                    <div class="mt-2">
+                        <div class="form-group">
+                            <i class="fas fa-file-excel"></i> <label> Please upload file with type ".xls" and ".xlsx" </label>
+                            <input type="file" name="FormFile" id="FormFile">
+                        </div>
+                    </div>
+                    <div class="mt-2 float-right">
+                        <button class="btn btn-success btn-lg" type="submit" value="Upload">
+                            <i class="fas fa-file-upload"></i>
+                        </button>
+                    </div>
+                </form>
+                <br/>
+                <div class="">
+                    <!--Show Message if file is uploaded or not-->
+                    @if (!string.IsNullOrEmpty(ViewBag.Message))
+                    {
+                        <script type="text/javascript">
+                        alert("@ViewBag.Message");
+                        </script>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="modal fade" id="mdlMstData">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">OWS ID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="contentResp"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">Exit</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $("#table_open").dataTable({ });
+        })
+
+        function getDataDetailMaster(p1, p2, p3){
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetDetailMstData")",
+                data: {
+                    product: p1,
+                    family: p2,
+                    code: p3
+                },
+                success: function(data){
+                    $("#contentResp").html(data);
+                    $("#mdlMstData").modal('show');
+                }
+            })
+        }
+    </script>
+}

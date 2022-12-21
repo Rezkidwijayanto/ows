@@ -1,0 +1,371 @@
+﻿@model ViewModel
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fa fa-list"></i> Open Work Order</h5>
+                    </div>
+                    <div class="card-body">
+
+
+                        <table id="table_open" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th class="text-center align-middle">Workorder</th>
+                                    <th class="text-center align-middle">Request Type</th>
+                                    <th class="text-center align-middle">Request By</th>
+                                    <th class="text-center align-middle">Reason</th>
+                                    <th class="text-center align-middle">Deadline</th>
+                                    <th class="text-center align-middle">Family</th>
+                                    <th class="text-center align-middle">Status</th>
+                                    <th class="text-center align-middle">Comments</th>
+                                    <th class="text-center align-middle">Action</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (OpenWorkOrder openWO in Model.OpenWorkOrdersDetail)
+                                {
+                                    <tr>
+                                        <td class="text-center align-middle">
+                                            <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="WO_Detail('@openWO.Work_Order')">@openWO.Work_Order</button>
+                                        </td>
+                                        <td class="text-center align-middle">@openWO.Request_Type</td>
+                                        <td class="text-center align-middle">@openWO.Request_By</td>
+                                        <td class="text-center align-middle">@openWO.Reason</td>
+                                        <td class="text-center align-middle">@Html.FormatValue("MM/dd/yyyy", openWO.Deadline.ToString("MM/dd/yyyy"))</td>
+                                        <td class="text-center align-middle">@openWO.Family</td>
+                                        <td class="text-center align-middle">@openWO.Status</td>
+                                        <td class="text-center align-middle">@openWO.Comment</td>
+                                        <td class="text-center align-middle">
+                                            <button class="btn btn-sm btn-success" name="btn_submit" onclick="submit_data('@openWO.Reason','@openWO.Deadline','@openWO.Request_Type','@openWO.Work_Order','@openWO.Request_By', '@openWO.Family')"><i class="fa fa-arrow-right"></i></button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<!-- Modal Submit 1 -->
+<div id="modal_submit_1" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Confirm Status</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    <label>Deadline From User</label>
+                    <div class="input-group date" name="datetimeuser" id="datetimeuser">
+                        <input type="text" class="form-control" disabled />
+
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label>Deadline From Operator</label>
+                    <div class="input-group date" name="datetimepicker_operator" id="datetimepicker_operator" data-target-input="nearest">
+                        <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker_operator" placeholder="Select Deadline" />
+                        <div class="input-group-append" data-target="#datetimepicker_operator" data-toggle="datetimepicker">
+                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="input_ows_id" name="input_ows_id">
+            </div>
+            <div class="modal-footer">
+                <div class="mt-3">
+                    <button class="btn btn-danger" data-dismiss="modal" name="btn_no">No</button>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success btn-block" name="btn_yes">Yes</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Submit_2 -->
+
+<div id="modal_submit_2" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Confirm Status</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    <label>Family</label>
+                    <div class="input-group date" name="select_family" id="select_family">
+                        <input type="text" class="form-control" disabled />
+
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label>Please select Approver</label>
+                    <select class="selectpicker form-control" data-live-search="true" id="select_approverMM" name="select_approverMM" title="Select Approver MM">
+
+                        @{
+                            foreach (var item in Model.approverMMModelsDetails)
+                            {
+                                <option>@Html.DisplayFor(model => item.ApproverMM)</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+                <div class="mt-3">
+                    <select class="selectpicker form-control" data-live-search="true" id="select_approverMTM" name="select_approverMTM" title="Select Approver MTM">
+                        @{
+                            foreach (var item in Model.approverMTMModelsDetails)
+                            {
+                                <option>@Html.DisplayFor(model => item.ApproverMTM)</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+                <div class="mt-3">
+                    <select class="selectpicker form-control" data-live-search="true" id="select_approverQA" name="select_approverQA" title="Select Approver QA">
+                        @{
+                            foreach (var item in Model.approverQAModelsDetails)
+                            {
+                                <option>@Html.DisplayFor(model => item.ApproverQA)</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+                <div class="mt-3">
+                    <select class="selectpicker form-control" data-live-search="true" id="select_approverPE" name="select_approverPE" title="Select Approver PE">
+                        @{
+                            foreach (var item in Model.approverPEModelsDetails)
+                            {
+                                <option>@Html.DisplayFor(model => item.ApproverPE)</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+
+                <input type="hidden" id="input_ows_id2" name="input_ows_id2">
+            </div>
+            <div class="modal-footer">
+                <div class="mt-3">
+                    <button class="btn btn-danger" data-dismiss="modal" name="btn_no1">No</button>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success btn-block" name="btn_savedata">Yes</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ows -->
+<div id="modal_ows" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">OWS ID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="table_data" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                    <thead>
+                        <tr class="bg-success text-white">
+                            <th class="text-center align-middle">Code</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>            
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+
+            $(document).ready(function () {
+                $("#table_open").dataTable();
+                $('#modal_submit_2').on('shown.bs.modal', function () {
+                    var deadline_operator = $("#datetimepicker_operator").find("input").val();
+                    console.log(deadline_operator);
+                    $("button[name=btn_savedata]").click(function () {
+                        var wo = $("#input_ows_id2").val();
+                        var approver_mm = $("#select_approverMM option:selected").text();
+                        var approver_qa = $("#select_approverQA option:selected").text();
+                        var approver_pe = $("#select_approverPE option:selected").text();
+                        var approver_mtm = $("#select_approverMTM option:selected").text();
+                       
+
+                        if (approver_mm !== null && approver_mm.length !== 0){
+                            WOStatusUpdate(wo,deadline_operator,approver_mm);
+                        }
+                        if (approver_qa !== null && approver_qa.length !== 0){
+
+                            WOStatusUpdate(wo,deadline_operator,approver_qa);
+                        }
+                        if (approver_pe !== null && approver_pe.length !== 0){
+
+                            WOStatusUpdate(wo,deadline_operator,approver_pe);
+                        }
+                        if (approver_mtm !== null && approver_mtm.length !== 0){
+
+                            WOStatusUpdate(wo,deadline_operator,approver_mtm);
+                        }
+                    })
+
+                })
+            });
+            
+            function WOStatusUpdate(wo,deadline,approver){
+                console.log(approver);
+                 $.ajax({
+                                                type: "POST",
+                                                url: "@Url.Action("StartnewRequest")",
+                                                data: {
+                                                    deadline_operator: deadline,
+                                                    approver: approver,
+                                                    wo: wo
+                                                },
+                                                dataType: "json",
+                                                success: function (result) {
+                                                    Swal.fire(
+                                                        'Done!',
+                                                        'Success Start Work Order!',
+                                                        'success'
+                                                    ).then(() => {
+                                                        location.reload();
+                                                    })
+                                                },
+                                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                                    Swal.fire(
+                                                        'Error!',
+                                                        'Error Start Work Order!',
+                                                        'error'
+                                                    ).then(() => {
+                                                        location.reload();
+                                                    })
+                
+                                                }
+                                            })
+            }
+
+            $('#modal_submit_2').on('hidden.bs.modal', function (e) {
+                location.reload();
+            })
+
+            $("button[name=btn_no1]").click(function () {
+                $('.selectpicker').selectpicker('refresh');
+            })
+
+
+            function submit_data(reason, deadline, type, wo, by, family) {
+
+                //console.log(ows_id, reason, deadline, type, wo, by, family);
+
+                $("#modal_submit_1").modal("show");
+                $("#datetimeuser").html(deadline);
+                $("#select_family").html(family);
+                $("#input_ows_id").val(wo);
+                $("#input_ows_id2").val(wo);
+            }
+
+
+
+            $("#select_approverMM").change(function () {
+                $("#select_approverQA").attr('disabled', true);
+                $("#select_approverMTM").attr('disabled', true);
+                $("#select_approverPE").attr('disabled', true);
+                $('.selectpicker').selectpicker('refresh');
+            })
+
+            $("#select_approverMTM").change(function () {
+                $("#select_approverQA").attr('disabled', true);
+                $("#select_approverMM").attr('disabled', true);
+                $("#select_approverPE").attr('disabled', true);
+                $('.selectpicker').selectpicker('refresh');
+            })
+
+            $("#select_approverQA").change(function () {
+                $("#select_approverMM").attr('disabled', true);
+                $("#select_approverMTM").attr('disabled', true);
+                $("#select_approverPE").attr('disabled', true);
+                $('.selectpicker').selectpicker('refresh');
+            })
+
+            $("#select_approverPE").change(function () {
+                $("#select_approverQA").attr('disabled', true);
+                $("#select_approverMTM").attr('disabled', true);
+                $("#select_approverMM").attr('disabled', true);
+                $('.selectpicker').selectpicker('refresh');
+            })
+
+
+            //$("button[name=btn_submit]").click(function () {
+            //    $("#modal_submit_1").modal("show");
+
+            //})
+
+            $("button[name=btn_yes]").click(function () {
+                $("#modal_submit_1").modal("hide");
+                $("#modal_submit_2").modal("show");
+
+
+
+            })
+
+        function WO_Detail(wo) {
+            $("#modal_ows").modal("show");
+            $("#table_data").DataTable({
+                pageResize: true,
+                "searching": false,
+                "paging": false,
+                "ajax": {
+                    "type": "POST",
+                    "url": "@Url.Action("GetCodeData") ",
+                    "data": { wo: wo },
+                    "dataSrc": "",
+                },
+                "columns": [
+                    { "data": "code" }
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0, // your case first column
+                        "className": "text-center"
+                    },
+                ]
+
+            });
+            $("#table_data").dataTable().fnDestroy();
+        }
+        $("table_data").css("th.dt - center", "td.dt - center", "{ text- align: center; }");
+
+
+
+
+    </script>
+
+}

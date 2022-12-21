@@ -1,0 +1,212 @@
+﻿@model ViewModel
+@using SEMB_OWS_Tracking.Models
+@{
+    ViewData["Title"] = "Dashboard Admin";
+}
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success text-center">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fas fa-chart-pie"></i> OWS Dashboard</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-4">                               
+                                <input type="text" id="recorddatefrom" name="recorddatefrom" data-toggle="datetimepicker" class="form-control datetimepicker-input mr-1 ml-1" placeholder="Select Date From" data-target="#recorddatefrom" autocomplete="off" />                                    
+                            </div>
+                            <div class="col-4">                                                               
+                                <input type="text" id="recorddateto" name="recorddateto" data-toggle="datetimepicker" class="form-control datetimepicker-input mr-1 ml-1" placeholder="Select Date To" data-target="#recorddateto" autocomplete="off" />
+
+                            </div>
+                            <div class="col-4">
+                                <button id="btn_search" name="btn_search" class="btn btn-success btn-block"><i class="fa fa-search"></i> Search</button>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <canvas id="OWS_Chart" height="1" width="5"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts
+{
+    <script src="~/lib/adminlte/plugins/chart.js/Chart.min.js"></script>
+
+    <script>
+
+        var ctx = document.getElementById('OWS_Chart').getContext('2d');
+        var OWS_Chart;
+        $(document).ready(function () {
+            $('#recorddatefrom').datetimepicker({
+                format: 'L'
+            });
+
+            $('#recorddateto').datetimepicker({
+                format: 'L'
+            });
+        })
+
+        function updateChart(chart, label, data) {
+            chart.data.labels = label;
+            chart.data.datasets = data;
+            chart.update();
+        }
+
+
+        $('button[name=btn_search]').click(function () {
+            var recorddatefrom = $('#recorddatefrom').val();
+            var recorddateto = $('#recorddateto').val();
+            if (recorddatefrom !== '' && recorddateto !== '') {
+                $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("GetOwsDataChart")",
+                    data: {
+                        recorddatefrom: recorddatefrom,
+                        recorddateto: recorddateto,
+                    },
+                    success: function (data) {
+                        console.log(data);
+                        if (!OWS_Chart) {
+                            OWS_Chart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: data["returnedlabel"],
+                                    datasets: [{
+                                        type: "bar",
+                                        label: "Total OWS",
+                                        backgroundColor:'#0275d8',
+                                        data: data["total_wo"],
+                                        yAxisID: 'y-axis-1',
+                                    },{
+                                        type: "bar",
+                                        label: "OWS Started",
+                                        backgroundColor: '#5bc0de',
+                                        data: data["total_wo_approved"],
+                                        yAxisID: 'y-axis-1',
+                                    },{
+                                        type: "bar",
+                                        label: "OWS Approved",
+                                        backgroundColor:'#5cb85c',
+                                        data: data["total_wo_approved"],
+                                        yAxisID: 'y-axis-1',
+                                    },{
+                                        type: "bar",
+                                        label: "OWS Rejected",
+                                        backgroundColor: '#d9534f',
+                                        data: data["total_wo_rejected"],
+                                        yAxisID: 'y-axis-1',
+                                    }]
+                                },
+                                options: {
+                                    scales: {
+                                        xAxes: [{
+                                            offset: true,
+                                            stacked: false,
+                                            scaleLabel: {
+                                                display: false,
+                                                labelString: "OWS Data"
+                                            }
+                                        }],
+                                        yAxes: [{
+                                            type: "linear",
+                                            position: "left",
+                                            id: "y-axis-1",
+                                            stacked: false,
+                                            ticks: {
+                                                suggestedMin: 0
+                                            },
+                                            scaleLabel: {
+                                                display: true,
+                                                labelString: "Quantity"
+                                            }
+                                        }]
+                                    },
+                                    legend: {
+                                        position: 'bottom'
+                                    },
+                                },
+                            })
+                        }
+                        else {
+                            var labels = data["returnedlabel"];
+                            var datasets = [{
+                                type: "bar",
+                                label: "Total OWS",
+                                backgroundColor: '#0275d8',
+                                data: data["total_wo"],
+                                yAxisID: 'y-axis-1',
+                            }, {
+                                type: "bar",
+                                label: "OWS Started",
+                                backgroundColor: '#5bc0de',
+                                data: data["total_wo_approved"],
+                                yAxisID: 'y-axis-1',
+                            }, {
+                                type: "bar",
+                                label: "OWS Approved",
+                                backgroundColor: '#5cb85c',
+                                data: data["total_wo_approved"],
+                                yAxisID: 'y-axis-1',
+                            }, {
+                                type: "bar",
+                                label: "OWS Rejected",
+                                backgroundColor: '#d9534f',
+                                data: data["total_wo_rejected"],
+                                yAxisID: 'y-axis-1',
+                            }];
+                            updateChart(OWS_Chart, labels, datasets);
+                        }
+                    },
+                    error: function (err) {
+                        console.log(err);
+                        if (OWS_Chart) return updateChart(OWS_Chart, [], [])
+                        OWS_Chart = new Chart(ctx, {
+                            type: 'bar',
+                            options: {
+                                scales: {
+                                    xAxes: [{
+                                        offset: true,
+                                        stacked: false,
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: "OWS Data"
+                                        }
+                                    }],
+                                    yAxes: [{
+                                        type: "linear",
+                                        position: "left",
+                                        id: "y-axis-1",
+                                        stacked: false,
+                                        ticks: {
+                                            suggestedMin: 0
+                                        },
+                                        scaleLabel: {
+                                            display: true,
+                                            labelString: "Quantity"
+                                        }
+                                    }]
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                },
+                            },
+                        })
+                    }
+                });
+            }
+            if (recorddatefrom == '') $('#recorddatefrom').addClass("is-invalid")
+            if (recorddateto == '') $('#recorddateto').addClass("is-invalid")
+            if (recorddatefrom != '') $('#recorddatefrom').removeClass("is-invalid")
+            if (recorddateto != '') $('#recorddateto').removeClass("is-invalid")
+        });
+
+    </script>
+}

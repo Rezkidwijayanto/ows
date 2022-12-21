@@ -1,0 +1,734 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using SEMB_OWS_Tracking.Function
+@inject IHttpContextAccessor HttpContextAccessor
+@{
+    if (HttpContextAccessor.HttpContext.Session == null)
+    {
+        Url.Action("SignOut", "Login");
+    }
+    string sessionLevel = HttpContextAccessor.HttpContext.Session.GetString("level");
+    string sessionPlant = HttpContextAccessor.HttpContext.Session.GetString("plant");
+
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>@ViewData["Title"] - OWS Tracking</title>
+    <link href="~/lib/adminlte/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet"/>
+    <!--FontAwesome-->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link href="~/lib/adminlte/plugins/fontawesome-free/css/all.min.css" rel="stylesheet"/>
+    <link href="~/lib/adminlte/plugins/fontawesome-free/css/fontawesome.min.css" rel="stylesheet"/>
+    <link href="~/lib/adminlte/plugins/fontawesome-free/css/solid.min.css" rel="stylesheet"/>
+    <link href="~/lib/adminlte/plugins/daterangepicker/daterangepicker.css" rel="stylesheet"/>
+    <!--Bootsrapt 4-->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/lib/DataTables-1.10.22/css/dataTables.bootstrap4.min.css"/>
+    <!-- Admin LTE-->
+    <link href="~/lib/adminlte/dist/css/adminlte.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="~/css/site.css"/>
+    <link href="~/lib/adminlte/plugins/sweetalert2/sweetalert2.css" rel="stylesheet"/>
+    <link href="~/lib/adminlte/plugins/overlayScrollbars/css/OverlayScrollbars.min.css" rel="stylesheet"/>
+    <!-- Bootstrap Multiselect -->
+    <link href="~/lib/adminlte/plugins/bootstrap-select-1.13.14/dist/css/bootstrap-select.min.css" rel="stylesheet"/>
+</head>
+<body class="sidebar-mini sidebar-collapse layout-fixed" style="padding: 0 !important; margin: 0 !important">
+<div class="wrapper">
+<!-- Navbar-->
+<nav class="main-header navbar navbar-expand border-bottom navbar-dark bg-success">
+    <ul class="navbar-nav">
+        <li class="nav-item">
+            <a class="nav-link" data-widget="pushmenu" href="#">
+                <i class="fa fa-bars" aria-hidden="true"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+<!-- End Navbar-->
+<!-- Sidebar -->
+<aside class="main-sidebar sidebar-dark-success elevation-5">
+<!-- Brand Logo -->
+<a class="brand-link bg-success">
+    <img src="~/assets/logos.png" alt="Schneider Logo" class="brand-image img-circle elevation-3"
+         style="opacity: .8">
+    <span class="brand-text font-weight-light">OWS Tracking</span>
+</a>
+<div class="sidebar">
+<div class="user-panel mt-3 pb-3 mb-3 d-flex">
+    <div class="image">
+        <img src="~/assets/header.png" class="img-circle elevation-2 bg-white" alt="User Image">
+    </div>
+    <div class="info">
+        <a class="d-block">@HttpContextAccessor.HttpContext.Session.GetString("name") | @HttpContextAccessor.HttpContext.Session.GetString("level") | @sessionPlant
+        </a>
+    </div>
+</div>
+<nav class="mt-3">
+<ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu">
+@if (sessionLevel == "user")
+{
+    <li class="nav-item ">
+        <a href="@Url.Action("NewRequest", "User")" class="nav-link @Html.IsActive("User", "NewRequest")">
+            <i class="fas fa-edit nav-icon"></i>
+            <p>
+                New Request
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("ChangeRequest", "User")" class="nav-link @Html.IsActive("User", "ChangeRequest")">
+            <i class="fas fa-edit nav-icon"></i>
+            <p>
+                Change Request
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("OpenWorkOrder", "User")" class="nav-link @Html.IsActive("User", "OpenWorkOrder")">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+                Open Work Order
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("Profile", "User")" class="nav-link ">
+            <i class="nav-icon fa fa-key"></i>
+            <p>
+                Change Password
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("SignOut", "Login")" class="nav-link ">
+            <i class="nav-icon fas fa-sign-out-alt"></i>
+            <p>
+                Log Out
+            </p>
+        </a>
+    </li>
+}
+
+@if (sessionLevel == "operator")
+{
+    string checkrequest = Html.IsMenuopen("Operator", "NewRequest") + Html.IsMenuopen("Operator", "ChangeRequest");
+    string checkActiveRequest = Html.IsActive("Operator", "NewRequest") + Html.IsActive("Operator", "ChangeRequest");
+    string checkWorkOrder = Html.IsMenuopen("Operator", "OpenWorkOrder") + Html.IsMenuopen("Operator", "StartedWorkOrder") + Html.IsMenuopen("Operator", "SubmittedWorkOrder");
+    string checkWorkOrderActive = Html.IsActive("Operator", "OpenWorkOrder") + Html.IsActive("Operator", "StartedWorkOrder") + Html.IsActive("Operator", "SubmittedWorkOrder");
+    string checkApprove = Html.IsMenuopen("Operator", "ApprovalWorkOrder") + Html.IsMenuopen("Operator", "VerifiedWorkOrder");
+    string checkApproveActive = Html.IsActive("Operator", "ApprovalWorkOrder") + Html.IsActive("Operator", "VerifiedWorkOrder");
+
+
+    <li class="nav-item menu-open @checkrequest">
+        <a href="#" class="nav-link @checkActiveRequest ">
+            <i class="nav-icon fas fa-edit"></i>
+            <p>
+                Request
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="@Url.Action("NewRequest", "Operator")" class="nav-link @Html.IsActive("Operator", "NewRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        New Request
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("ChangeRequest", "Operator")" class="nav-link @Html.IsActive("Operator", "ChangeRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        Change Request
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item @checkWorkOrder">
+        <a href="#" class="nav-link @checkWorkOrderActive">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Workorder
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item ">
+                <a href="@Url.Action("OpenWorkOrder", "Operator")" class="nav-link @Html.IsActive("Operator", "OpenWorkOrder")">
+                    <i class="nav-icon fas fa-table"></i>
+                    <p>
+                        Open Workorder
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="@Url.Action("StartedWorkOrder", "Operator")" class="nav-link @Html.IsActive("Operator", "StartedWorkOrder")">
+                    <i class="nav-icon fas fa-table"></i>
+                    <p>
+                        Started Workorder
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="@Url.Action("SubmittedWorkOrder", "Operator")" class="nav-link @Html.IsActive("Operator", "SubmittedWorkOrder")">
+                    <i class="nav-icon fas fa-table"></i>
+                    <p>
+                        Submitted Workorder
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("ApprovalTracking", "Operator")" class="nav-link @Html.IsActive("Operator", "ApprovalTracking")">
+            <i class="nav-icon fa fa-line-chart"></i>
+            <p>
+                Approval Tracking
+            </p>
+        </a>
+    </li>
+    <li class="nav-item @checkApprove">
+        <a href="#" class="nav-link @checkApproveActive">
+            <i class="nav-icon fas fa-check"></i>
+            <p>
+                Approved/Verified
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item ">
+                <a href="@Url.Action("ApprovalWorkOrder", "Operator")" class="nav-link @Html.IsActive("Operator", "ApprovalWorkOrder")">
+                    <i class="nav-icon fas fa-table"></i>
+                    <p>
+                        Approved Workorder
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item ">
+                <a href="@Url.Action("VerifiedWorkOrder", "Operator")" class="nav-link @Html.IsActive("Operator", "VerifiedWorkOrder")">
+                    <i class="nav-icon fas fa-table"></i>
+                    <p>
+                        Verified Workorder
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("Profile", "Operator")" class="nav-link @Html.IsActive("Operator", "Profile") ">
+            <i class="nav-icon fa fa-key"></i>
+            <p>
+                Change Password
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("SignOut", "Login")" class="nav-link">
+            <i class="nav-icon fas fa-sign-out-alt"></i>
+            <p>
+                Log Out
+            </p>
+        </a>
+    </li>
+}
+@if (sessionLevel == "approver_mm")
+{
+    string checkrequest = Html.IsMenuopen("Approver", "NewRequest") + Html.IsMenuopen("Approver", "NewRequest");
+    string checkActiveRequest = Html.IsActive("Approver", "NewRequest") + Html.IsActive("Approver", "ChangeRequest");
+    <li class="nav-item menu-open @checkrequest">
+        <a href="#" class="nav-link @checkActiveRequest ">
+            <i class="nav-icon fas fa-edit"></i>
+            <p>
+                Request
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="@Url.Action("NewRequest", "Approver")" class="nav-link @Html.IsActive("Approver", "NewRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        New Request
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("ChangeRequest", "Approver")" class="nav-link @Html.IsActive("Approver", "ChangeRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        Change Request
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("OpenWorkOrder", "Approver")" class="nav-link @Html.IsActive("Approver", "OpenWorkOrder")">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+                Submitted Workorder
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("ApprovalMM", "Approver")" class="nav-link @Html.IsActive("Approver", "ApprovalMM") ">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Approver Page
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("WorkOrderTracking", "Approver")" class="nav-link @Html.IsActive("Approver", "WorkOrderTracking") ">
+            <i class="fas fa-chart-line nav-icon"></i>
+            <p>
+                Tracking
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("ApprovalTracking", "Approver")" class="nav-link @Html.IsActive("Approver", "ApprovalTracking")">
+            <i class="nav-icon fa fa-line-chart"></i>
+            <p>
+                Approval Tracking
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("Profile", "Approver")"  class="nav-link @Html.IsActive("Approver", "Profile")">
+            <i class="nav-icon fa fa-key"></i>
+            <p>
+                Change Password
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("SignOut", "Login")" class="nav-link">
+            <i class="nav-icon fas fa-sign-out-alt"></i>
+            <p>
+                Log Out
+            </p>
+        </a>
+    </li>
+}
+@if (sessionLevel == "approver_qa")
+{
+    string checkrequest = Html.IsMenuopen("Approver", "NewRequest") + Html.IsMenuopen("Approver", "NewRequest");
+    string checkActiveRequest = Html.IsActive("Approver", "NewRequest") + Html.IsActive("Approver", "ChangeRequest");
+    <li class="nav-item menu-open @checkrequest">
+        <a href="#" class="nav-link @checkActiveRequest ">
+            <i class="nav-icon fas fa-edit"></i>
+            <p>
+                Request
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="@Url.Action("NewRequest", "Approver")" class="nav-link @Html.IsActive("Approver", "NewRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        New Request
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("ChangeRequest", "Approver")" class="nav-link @Html.IsActive("Approver", "ChangeRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        Change Request
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("OpenWorkOrder", "Approver")" class="nav-link @Html.IsActive("Approver", "OpenWorkOrder")">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+                Submitted Workorder
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("ApprovalQA", "Approver")" class="nav-link @Html.IsActive("Approver", "ApprovalQA")  ">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Approver Page
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("WorkOrderTracking", "Approver")" class="nav-link @Html.IsActive("Approver", "WorkOrderTracking") ">
+            <i class="fas fa-chart-line nav-icon"></i>
+            <p>
+                Tracking
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("Profile", "Approver")" class="nav-link @Html.IsActive("Approver", "Profile")">
+            <i class="nav-icon fa fa-key"></i>
+            <p>
+                Change Password
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("SignOut", "Login")" class="nav-link">
+            <i class="nav-icon fas fa-sign-out-alt"></i>
+            <p>
+                Log Out
+            </p>
+        </a>
+    </li>
+}
+@if (sessionLevel == "approver_pe")
+{
+    string checkrequest = Html.IsMenuopen("User", "NewRequest") + Html.IsMenuopen("User", "NewRequest");
+    string checkActiveRequest = Html.IsActive("User", "NewRequest") + Html.IsActive("User", "ChangeRequest");
+    <li class="nav-item menu-open @checkrequest">
+        <a href="#" class="nav-link @checkActiveRequest ">
+            <i class="nav-icon fas fa-edit"></i>
+            <p>
+                Request
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="@Url.Action("NewRequest", "Approver")" class="nav-link @Html.IsActive("Approver", "NewRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        New Request
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("ChangeRequest", "Approver")" class="nav-link @Html.IsActive("Approver", "ChangeRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        Change Request
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("OpenWorkOrder", "Approver")" class="nav-link @Html.IsActive("Approver", "OpenWorkOrder")">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+                Submitted Workorder
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("ApprovalPE", "Approver")" class="nav-link @Html.IsActive("Approver", "ApprovalPE")   ">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Approver Page
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("WorkOrderTracking", "Approver")" class="nav-link @Html.IsActive("Approver", "WorkOrderTracking") ">
+            <i class="fas fa-chart-line nav-icon"></i>
+            <p>
+                Tracking
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("Profile", "Approver")" class="nav-link @Html.IsActive("Approver", "Profile")">
+            <i class="nav-icon fa fa-key"></i>
+            <p>
+                Change Password
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("SignOut", "Login")" class="nav-link">
+            <i class="nav-icon fas fa-sign-out-alt"></i>
+            <p>
+                Log Out
+            </p>
+        </a>
+    </li>
+}
+@if (sessionLevel == "approver_mtm")
+{
+    string checkrequest = Html.IsMenuopen("User", "NewRequest") + Html.IsMenuopen("User", "NewRequest");
+    string checkActiveRequest = Html.IsActive("User", "NewRequest") + Html.IsActive("User", "ChangeRequest");
+    <li class="nav-item menu-open @checkrequest">
+        <a href="#" class="nav-link @checkActiveRequest ">
+            <i class="nav-icon fas fa-edit"></i>
+            <p>
+                Request
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="@Url.Action("NewRequest", "Approver")" class="nav-link @Html.IsActive("Approver", "NewRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        New Request
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("ChangeRequest", "Approver")" class="nav-link @Html.IsActive("Approver", "ChangeRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        Change Request
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("OpenWorkOrder", "Approver")" class="nav-link @Html.IsActive("Approver", "OpenWorkOrder")">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+                Submitted Workorder
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("ApprovalMTM", "Approver")" class="nav-link @Html.IsActive("Approver", "ApprovalMTM")  ">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Approver Page
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("WorkOrderTracking", "Approver")" class="nav-link @Html.IsActive("Approver", "WorkOrderTracking") ">
+            <i class="fas fa-chart-line nav-icon"></i>
+            <p>
+                Tracking
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("Profile", "Approver")" class="nav-link @Html.IsActive("Approver", "Profile")">
+            <i class="nav-icon fa fa-key"></i>
+            <p>
+                Change Password
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("SignOut", "Login")" class="nav-link">
+            <i class="nav-icon fas fa-sign-out-alt"></i>
+            <p>
+                Log Out
+            </p>
+        </a>
+    </li>
+}
+@if (sessionLevel == "admin")
+{
+    string checkrequest = Html.IsMenuopen("Operator", "NewRequest") + Html.IsMenuopen("Operator", "ChangeRequest");
+    string checkActiveRequest = Html.IsActive("Operator", "NewRequest") + Html.IsActive("Operator", "ChangeRequest");
+    string checktracking = Html.IsMenuopen("Admin", "OperatorLeadTime") + Html.IsMenuopen("Admin", "ApprovalLeadTime");
+    string checkActivetracking = Html.IsActive("Admin", "OperatorLeadTime") + Html.IsActive("Admin", "ApprovalLeadTime");
+    string checkhistory = Html.IsActive("Admin", "ApprovalHistory") + Html.IsActive("Admin", "RequestHistory");
+    string checkActivehistory = Html.IsActive("Admin", "ApprovalHistory") + Html.IsActive("Admin", "RequestHistory");
+
+    <li class="nav-item">
+        <a href="@Url.Action("AdminDashboard", "Admin")" class="nav-link @Html.IsActive("Admin", "AdminDashboard")">
+            <i class="fas fa-tachometer-alt nav-icon"></i>
+            <p>
+                Dashboard
+            </p>
+        </a>
+    </li>
+
+   <li class="nav-item menu-open @checkrequest">
+        <a href="#" class="nav-link @checkActiveRequest ">
+            <i class="nav-icon fas fa-edit"></i>
+            <p>
+                Request
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="@Url.Action("NewRequest", "Operator")" class="nav-link @Html.IsActive("Operator", "NewRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        New Request
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("ChangeRequest", "Operator")" class="nav-link @Html.IsActive("Operator", "ChangeRequest")">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>
+                        Change Request
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </li>
+
+    <li class="nav-item ">
+        <a href="@Url.Action("ApprovalMM", "Approver")" class="nav-link @Html.IsActive("Approver", "ApprovalMM")  ">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Approver MM
+            </p>
+        </a>
+    </li>
+     <li class="nav-item ">
+        <a href="@Url.Action("ApprovalMTM", "Approver")" class="nav-link @Html.IsActive("Approver", "ApprovalMTM")  ">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Approver MTM
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("ApprovalQA", "Approver")" class="nav-link @Html.IsActive("Approver", "ApprovalQA")  ">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Approver QA
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("ApprovalPE", "Approver")" class="nav-link @Html.IsActive("Approver", "ApprovalPE")  ">
+            <i class="nav-icon fas fa-tasks"></i>
+            <p>
+                Approver PE
+            </p>
+        </a>
+    </li>
+
+
+
+    <li class="nav-item menu-open @checktracking ">
+        <a href="#" class="nav-link @checkActivetracking ">
+            <i class="fas fa-chart-line nav-icon"></i>
+            <p>
+                Tracking
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="@Url.Action("OperatorLeadTime", "Admin")" class="nav-link @Html.IsActive("Admin", "OperatorLeadTime")">
+                    <i class="far fa-calendar-alt nav-icon"></i>
+                    <p>
+                        Operator lead time
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("ApprovalLeadTime", "Admin")" class="nav-link @Html.IsActive("Admin", "ApprovalLeadTime")">
+                    <i class="far fa-calendar-alt nav-icon"></i>
+                    <p>
+                        Approval lead time
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </li>
+    <li class="nav-item">
+        <a href="@Url.Action("RequestHistory", "Admin")" class="nav-link @Html.IsActive("Admin", "RequestHistory")">
+            <i class="fas fa-history nav-icon"></i>
+            <p>
+                Request History
+            </p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="@Url.Action("UploadFile", "Admin")" class="nav-link @Html.IsActive("Admin", "UploadFile")">
+            <i class="fas fa-database nav-icon"></i>
+            <p>
+                Data Management
+            </p>
+        </a>
+    </li>
+
+     <li class="nav-item ">
+        <a href="@Url.Action("ApprovalTracking", "Operator")" class="nav-link @Html.IsActive("Operator", "ApprovalTracking")">
+            <i class="nav-icon fa fa-line-chart"></i>
+            <p>
+                Approval Tracking
+            </p>
+        </a>
+    </li>
+
+    <li class="nav-item">
+        <a href="@Url.Action("UsersList", "Admin")" class="nav-link @Html.IsActive("Admin", "UsersList")">
+            <i class="fas fa-users nav-icon"></i>
+            <p>
+                Users Management
+            </p>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="@Url.Action("Profile", "Admin")" class="nav-link @Html.IsActive("Admin", "Profile")">
+            <i class="fas fa-key nav-icon"></i>
+            <p>
+                Change Password
+            </p>
+        </a>
+    </li>
+    <li class="nav-item ">
+        <a href="@Url.Action("SignOut", "Login")" class="nav-link">
+            <i class="nav-icon fas fa-sign-out-alt"></i>
+            <p>
+                Log Out
+            </p>
+        </a>
+    </li>
+}
+</ul>
+</nav>
+</div>
+</aside>
+<div class="content-wrapper">
+    @RenderBody()
+
+
+
+</div>
+<footer class="main-footer">
+    <strong>Copyright &copy; 2021 <a class="text-success" href="http://schneider-electric.com">Schneider Electric</a>.</strong>
+    All rights reserved.
+    <div class="float-right d-none d-sm-inline-block">
+        <b>Version</b> 1.0.0
+    </div>
+</footer>
+@*<div id="sidebar-overlay"></div>*@
+</div>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/DataTables-1.10.22/js/jquery.dataTables.min.js"></script>
+<script src="~/lib/DataTables-1.10.22/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/lib/adminlte/dist/js/adminlte.min.js"></script>
+<script src="~/lib/adminlte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script src="~/lib/adminlte/plugins/sweetalert2/sweetalert2.min.js"></script>
+<script type="module" src="~/lib/sweetalert2-10.0.0/src/sweetalert2.js"></script>
+<script src="~/lib/adminlte/plugins/bootstrap-select-1.13.14/dist/js/bootstrap-select.min.js"></script>
+<script src="~/lib/adminlte/plugins/moment/moment.min.js"></script>
+<script src="~/lib/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script>
+        $('body').on("click", function (e) {
+            //$(this).removeClass('sidebar-open');
+            //console.log("yes");
+        });
+    </script>
+@RenderSection("Scripts", required: false)
+</body>
+</html>

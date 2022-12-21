@@ -1,0 +1,29 @@
+﻿@model ViewModel
+
+<table id="table_open" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+    <thead>
+        <tr class="bg-success text-white">
+            <th class="align-middle text-center">Code</th>
+            <th class="align-middle text-center">Request Type</th>
+            <th class="align-middle text-center">Request By</th>
+            <th class="align-middle text-center">Reason</th>
+            <th class="align-middle text-center">Deadline</th>
+            <th class="align-middle text-center">Family</th>
+            <th class="align-middle text-center">Comments</th>
+        </tr>
+    </thead>
+    <tbody>
+                @foreach (OpenWorkOrder openWO in Model.OpenWorkOrdersDetail)
+                {
+                <tr>
+                    <td class="text-center align-middle">@openWO.OWS_ID</td>
+                    <td class="text-center align-middle">@openWO.Request_Type</td>
+                    <td class="text-center align-middle">@openWO.Request_By</td>
+                    <td class="text-center align-middle">@openWO.Reason</td>
+                    <td class="text-center align-middle">@Html.FormatValue("MM/dd/yyyy", openWO.Deadline.ToString("MM/dd/yyyy"))</td>
+                    <td class="text-center align-middle">@openWO.Family</td>
+                    <td class="text-center align-middle">@openWO.Comment</td>
+                    
+                </tr>}
+    </tbody>
+</table>

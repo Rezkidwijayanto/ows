@@ -1,0 +1,106 @@
+﻿@{
+    ViewData["Title"] = "Operator Lead Time";
+}
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fa fa-list"></i> Operator Lead Time</h5>
+                    </div>
+                    <div class="card-body">
+
+
+                        <table id="table_open" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th class="text-center align-middle">Workorder</th>
+                                    <th class="text-center align-middle">Start date</th>
+                                    <th class="text-center align-middle">Deadline</th>
+                                    <th class="text-center align-middle">Submit date</th>
+                                    <th class="text-center align-middle">Status</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (DeadlineTracking deadlineTracking in Model)
+                                {
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="WO_Detail('@deadlineTracking.Work_Order')">@deadlineTracking.Work_Order</button>
+                                    </td>
+                                    <td class="text-center align-middle">@Html.FormatValue("MM/dd/yyyy", deadlineTracking.StartDate.ToString("MM/dd/yyyy"))</td>
+                                    <td class="text-center align-middle">@Html.FormatValue("MM/dd/yyyy", deadlineTracking.Deadline.ToString("MM/dd/yyyy"))</td>
+                                    <td class="text-center align-middle">@Html.FormatValue("MM/dd/yyyy", deadlineTracking.SubmitDate.ToString("MM/dd/yyyy"))</td>
+
+                                    @if (deadlineTracking.Late_Status == "LATE")
+                                    {
+                                        <td class="text-center align-middle bg-danger">@deadlineTracking.Late_Status</td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center align-middle bg-success">@deadlineTracking.Late_Status</td>
+                                    }
+
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ows -->
+<div id="modal_ows" class="modal fade">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">OWS ID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row table-responsive">
+                    <div id="tbl_data"></div>
+                </div>
+            </div>            
+        </div>
+
+    </div>
+</div>
+
+
+@section Scripts
+{
+
+    <script>
+        $(document).ready(function () {
+            $("#table_open").dataTable();
+        });
+
+        function WO_Detail(wo) {
+            var tbl_data_details = $('#tbl_data');
+            $.ajax({
+                type: "GET",
+                url: "@Url.Action("GetWorkOrderData")",
+                data: { wo : wo},
+                success: function (data) {
+                    tbl_data_details.html(data);
+                },
+                error: function(err) {
+                    console.log(err);
+                }
+            });
+
+            $("#modal_ows").modal("show");
+        }
+
+    </script>
+
+}

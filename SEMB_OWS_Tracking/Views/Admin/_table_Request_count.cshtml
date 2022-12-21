@@ -1,0 +1,88 @@
+﻿@model ViewModel
+<label>Daily</label>
+<table id="tbl_countdetaildaily" class="table table-borderless table-sm table-striped text-center" style="font-size:8pt">
+    <thead>
+        <tr class="card-header bg-gradient-success">
+            <th class="align-middle text-center">Date</th>
+            <th class="align-middle text-center">Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ if (Model.RequestCountDetails != null)
+            {
+                foreach (var item in Model.RequestCountDetails)
+                {
+                <tr>
+                            <td class="align-middle text-center">@Html.FormatValue("MM/dd/yyyy", item.Date.ToString("MM/dd/yyyy"))</td>
+                    <td class="align-middle text-center"><button class="btn btn-success btn-sm" style="font-size:8pt">@item.Number </button></td>
+                </tr>
+                }
+            }
+            else
+            {
+            <tr>
+                <td colspan="6" class="align-middle">No Data to Display</td>
+            </tr>
+            } 
+        }
+    </tbody>
+</table>
+
+<label>Weekly</label>
+<table id="tbl_countdetailweekly" class="table table-borderless table-sm table-striped text-center" style="font-size:8pt">
+    <thead>
+        <tr class="card-header bg-gradient-success">
+            <th class="align-middle text-center">Week No</th>
+            <th class="align-middle text-center">Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ if (Model.RequestCountWeekDetails != null)
+            {
+                foreach (var item in Model.RequestCountWeekDetails)
+                {
+                <tr>
+                    <td class="align-middle text-center">@item.Week</td>
+                    <td class="align-middle text-center"><button class="btn btn-success btn-sm" style="font-size:8pt">@item.Number </button></td>
+                </tr>
+                }
+            }
+            else
+            {
+            <tr>
+                <td colspan="6" class="align-middle">No Data to Display</td>
+            </tr>
+            } 
+        }
+    </tbody>
+</table>
+
+
+<label>Monthly</label>
+<table id="tbl_countdetailmonthly" class="table table-borderless table-sm table-striped text-center" style="font-size:8pt">
+    <thead>
+        <tr class="card-header bg-gradient-success">
+            <th class="align-middle text-center">Month No</th>
+            <th class="align-middle text-center">Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @{ if (Model.RequestCountMonthDetails != null)
+            {
+                foreach (var item in Model.RequestCountMonthDetails)
+                {
+                    <tr>
+                        <td class="align-middle text-center">@item.Month</td>
+                        <td class="align-middle text-center"><button class="btn btn-success btn-sm" style="font-size:8pt">@item.Number </button></td>
+                    </tr> 
+                } 
+            }
+            else
+            {
+                <tr>
+                    <td colspan="6" class="align-middle">No Data to Display</td>
+                </tr> 
+            } 
+        }
+    </tbody>
+</table>

@@ -1,0 +1,279 @@
+﻿
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fa fa-list"></i> Approved Work Order</h5>
+                    </div>
+                    <div class="card-body">
+                        <table id="table_open" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th class="text-center align-middle">Workorder</th>
+                                    <th class="text-center align-middle">Request Type</th>
+                                    <th class="text-center align-middle">Request By</th>
+                                    <th class="text-center align-middle">Reason</th>
+                                    <th class="text-center align-middle">Deadline</th>
+                                    <th class="text-center align-middle">Family</th>
+                                    <th class="text-center align-middle">Status</th>
+                                    <th class="text-center align-middle">Comments</th>
+                                    <th class="text-center align-middle">Change Version</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (Approval approval in Model)
+                                {
+                                    <tr>
+                                        <td class="text-center align-middle">
+                                            <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="WO_Detail('@approval.Work_Order')">@approval.Work_Order</button>
+                                        </td>
+                                        <td class="text-center align-middle">@approval.Request_Type</td>
+                                        <td class="text-center align-middle">@approval.Request_By</td>
+                                        <td class="text-center align-middle">@approval.Reason</td>
+                                        <td class="text-center align-middle">@Html.FormatValue("MM/dd/yyyy", approval.Deadline.ToString("MM/dd/yyyy"))</td>
+                                        <td class="text-center align-middle">@approval.Family</td>
+                                        <td class="text-center align-middle">@approval.Status</td>
+                                        <td class="text-center align-middle">@approval.Comments</td>
+                                        <td class="text-center align-middle">
+                                            <button class="btn btn-info btn-sm" name="btn_change" onclick="change_data('@approval.Work_Order')"><i class="fas fa-external-link-alt"></i></button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ows -->
+<div id="modal_ows" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">OWS ID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="table_data1" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                    <thead>
+                        <tr class="bg-success text-white">
+                            <th class="text-center align-middle">Code</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+           
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Item  -->
+<div id="modal_data" class="modal fade">
+    <div class="modal-dialog " role="document">
+        <div class="modal-content" >
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-database "></i> OWS Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="card-body">
+                                    <table id="table_data" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                                        <thead>
+                                            <tr class="bg-success text-white">
+                                                <th class="text-center">Code</th>
+                                                <th class="text-center">Product</th>
+                                                <th class="text-center">WorkOrder</th>
+                                                <th class="text-center">Family</th>
+                                                <th class="text-center">Version</th>
+                                                <th class="text-center"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Change -->
+<div id="modal_change" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-keyboard "></i> Change Version</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success text-center" role="alert">
+                    <i class='fa fa-check'></i> Successful Change
+                </div>
+                <div class="mt-3">
+                    <label><i class="fas fa-user-edit"></i> Please update version for Code and Product</label>
+                    <p><i class="fas fa-sticky-note"></i>  Enter [A] for New Request</p>
+                </div>
+                <div class="mt-3">
+                    <div class="form-group">
+                        <input class="form-control text-center" type="text" name="version_data" id="version_data" />
+                    </div>
+                </div>
+            </div>
+                <div class="modal-footer">
+                    <div class="mt-3">
+                        <button class="btn btn-danger" data-dismiss="modal" name="btn_no">No</button>
+                        <button class="btn btn-primary" name="btn_ok"><i class="fas fa-save"></i></button>
+                    </div>
+                </div>
+            </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+
+    <script>
+        $(document).ready(function () {
+            $("#table_open").dataTable();
+            $(".alert").hide();
+        });
+
+        
+
+        function WO_Detail(wo) {
+            $("#modal_ows").modal("show");
+            $("#table_data1").DataTable({
+                pageResize: true,
+                "searching": false,
+                "paging": false,
+                "bInfo": false,
+                "ajax": {
+                    "type": "POST",
+                    "url": "@Url.Action("GetCodeData") ",
+                    "data": { wo: wo },
+                    "dataType" : "json",
+                    "contentType" : "application/json; charset=utf-8",
+                    "dataSrc": "",
+                },
+                "columns": [
+                    { "data": "code" }
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0, // your case first column
+                        "className": "text-center"
+                    },
+                ]
+
+            });
+            $("#table_data1").dataTable().fnDestroy();
+        }
+        $("table_data1").css("th.dt - center", "td.dt - center", "{ text- align: center; }");
+
+
+        function change_data(wo) {
+
+            var oTable = $("#table_data").DataTable({
+                pageResize: true,
+                "searching": false,
+                "paging": false,
+                "ajax": {
+                    "type": "GET",
+                    "url": "@Url.Action("GetChangeData")",
+                    "data": { wo: wo },
+                    "dataSrc": "",
+                },
+                "columns": [
+                    { "data": "code" },
+                    { "data": "product" },
+                    { "data": "work_Order" },
+                    { "data": "family" },
+                    { "data": "version" },
+                    {
+                        "data": null,
+                        wrap: true,
+                        "render": function (version) { return '<button class="btn btn-sm btn-warning myButton text-center" data-visitor-wifi="' + version + '"><i class="fas fa-edit"></button>'; }
+                    }
+                ]
+
+            });
+
+            $("#table_data").dataTable().fnDestroy();
+
+
+
+            $("#modal_data").modal("show");
+
+            $('#table_data').on('click', '.myButton', function () {
+                var code = $(this).closest('tr').find('td:eq(0)').text();
+                var product = $(this).closest('tr').find('td:eq(1)').text();
+                var wo = $(this).closest('tr').find('td:eq(2)').text();
+                var family = $(this).closest('tr').find('td:eq(3)').text();
+                var version = $(this).closest('tr').find('td:eq(4)').text();
+                $('#version_data').val(version);
+                $("#modal_change").modal("show");
+
+                $("button[name=btn_ok]").click(function () {
+                    $.ajax({
+                        url: "@Url.Action("ChangeVersion")",
+                        type: "POST",
+                        data: {
+                            code: code,
+                            product: product,
+                            wo: wo,
+                            family: family,
+                            version: $('#version_data').val()
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            $(".alert").show();
+                            $(".alert").delay(1700).slideUp(100, function () {
+                                $("#modal_change").modal("hide");
+                                oTable.ajax.reload();
+                            });                                                          
+                            
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            Swal.fire(
+                                'Error!',
+                                'Error Change!',
+                                'error'
+                            )
+                        }
+                    });
+                })
+            });
+
+        }
+
+
+
+    </script>
+
+}

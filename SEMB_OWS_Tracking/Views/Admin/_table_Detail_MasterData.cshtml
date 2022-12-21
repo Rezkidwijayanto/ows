@@ -1,0 +1,49 @@
+﻿@model ViewModel
+<div>
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered table-striped dataTable no-footer" style="font-size: 8pt; width: 100%;" id="mstDetails">
+            <thead class="bg-success">
+                <tr>
+                    <th>ID</th>
+                    <th>Product</th>
+                    <th>Family</th>
+                    <th>Format</th>
+                    <th>Operation Name</th>
+                    <th>Code</th>
+                    <th>Safety Required</th>
+                    <th>Critical Required</th>
+                   @* <th>Total Set</th>
+                    <th>No Pape</th>*@
+                    <th>Version</th>
+                    <th>Issued Date</th>
+                    <th>Sector</th>
+                    <th>Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var data in Model.MSTDetailsData)
+               {
+                    <tr>
+                        <td>@data.STT</td>
+                        <td>@data.Product</td>
+                        <td>@data.Family</td>
+                        <td>@data.Format</td>
+                        <td>@data.Operation_Name</td>
+                        <td>@data.Code</td>
+                        <td>@data.Safety_Required</td>
+                        <td>@data.Critical_Required</td>
+                        @*<td>@data.Total_Set</td>
+                        <td>@data.No_Pape</td>*@
+                        <td>@data.Version</td>
+                        <td>@data.Issued_Date</td>
+                        <td>@data.Sector</td>
+                        <td>@data.comment</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    $("#mstDetails").dataTable();
+</script>

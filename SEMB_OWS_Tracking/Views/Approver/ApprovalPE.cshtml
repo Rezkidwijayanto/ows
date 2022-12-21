@@ -1,0 +1,374 @@
+﻿@using Microsoft.AspNetCore.Http;
+@using SEMB_OWS_Tracking.Function;
+@inject IHttpContextAccessor HttpContextAccessor;
+@{
+    var roleuser = HttpContextAccessor.HttpContext.Session.GetString("level");
+}
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fa fa-list"></i> WorkOrder Need PE Approval</h5>
+                    </div>
+                    <div class="card-body">
+                        <table id="table_approval" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th class="text-center align-middle">Workorder</th>
+                                    <th class="text-center align-middle">Request Type</th>
+                                    <th class="text-center align-middle">Request By</th>
+                                    <th class="text-center align-middle">Reason</th>
+                                    <th class="text-center align-middle">Deadline</th>
+                                    <th class="text-center align-middle">Family</th>
+                                    <th class="text-center align-middle">Status</th>
+                                    <th class="text-center align-middle">Comments</th>
+                                    <th class="text-center align-middle">Details</th>
+                                    <th hidden></th>
+
+                                    @{
+                                        if(roleuser != "admin")
+                                        {
+                                            <th class="text-center align-middle">Action</th>
+                                        }
+                                    }
+                                    
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (Approval approverWO in Model)
+                                {
+                                    <tr>
+                                        <td class="text-center align-middle">
+                                            <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="WO_Detail('@approverWO.Work_Order')">@approverWO.Work_Order</button>
+                                        </td>
+                                        <td class="text-center align-middle">@approverWO.Request_Type</td>
+                                        <td class="text-center align-middle">@approverWO.Request_By</td>
+                                        <td class="text-center align-middle">@approverWO.Reason</td>
+                                        <td class="text-center align-middle">@Html.FormatValue("MM/dd/yyyy", approverWO.Deadline.ToString("MM/dd/yyyy"))</td>
+                                        <td class="text-center align-middle">@approverWO.Family</td>
+                                        <td class="text-center align-middle">@approverWO.Status</td>
+                                        <td class="text-center align-middle">@approverWO.Comments</td>
+                                        <td class="text-center align-middle">
+                                            <div class="btn-group">
+                                                <button class="btn btn-info btn-sm" style="font-size:8pt" name="btn_details" id="btn_details" onclick="linkdata('@approverWO.Work_Order')"><i class="fa fa-info"></i> Link</button>
+                                                <button class="btn btn-warning btn-sm" style="font-size:8pt" onclick="downloadfile('@approverWO.Work_Order')"><i class="fa fa-download"></i> Files</button>
+                                                <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="displayimage('@approverWO.Work_Order')"><i class="fa fa-image"></i> Image</button>
+                                            </div>
+                                        </td>
+                                        <td hidden>@approverWO.Submit_By</td>
+                                        @{
+                                            if(roleuser != "admin")
+                                            {
+                                                <td class="text-center align-middle">
+                                                    <div class="btn-group">
+                                                        <button class="btn btn-warning btn-sm" style="font-size:8pt" name="btn_verify" onclick="submit_data('@approverWO.Work_Order')"><i class="fa fa-check"></i> Verify</button>
+                                                        <button class="btn btn-success ml-2 btn-sm" style="font-size:8pt" name="btn_approve" onclick="approval_data('@approverWO.Work_Order','@approverWO.Request_Type', '@approverWO.Request_By', '@approverWO.Reason', '@approverWO.Deadline', '@approverWO.Family')"><i class="fa fa-arrow-right"></i> Approve</button>
+                                                    </div>
+
+                                                </td>
+                                            }
+                                        }
+                                            
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modal_verify" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Verify Workorder</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    <input class="form-control text-center" type="text" name="verify_comment" id="verify_comment" placeholder="Comment" />
+                </div>
+            </div>
+            <input type="hidden" id="input_ows_id" name="input_ows_id">
+            <div class="modal-footer">
+                <div class="mt-3">
+                    <button class="btn btn-danger" data-dismiss="modal" name="btn_no">No</button>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success btn-block" name="btn_yes">Yes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ows -->
+<div id="modal_ows" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">OWS ID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="table_data" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                    <thead>
+                        <tr class="bg-success text-white">
+                            <th class="text-center align-middle">Code</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>            
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Box Link -->
+<div id="modal_box_link" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-link"></i> Box Link</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    <div class="form-group">
+                        <select onchange="window.open(this.value)" id="box_link" class="selectpicker form-control" title="Link Box" asp-items="@(new SelectList(string.Empty, "Value", "Text"))"></select>
+                    </div>
+                </div>
+            </div>            
+        </div>
+
+    </div>
+</div>
+
+<div id="modal_Image" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Image</h5>
+            </div>
+            <div class="modal-body">
+                <div id="imagedetail"></div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@section Scripts
+{
+
+    <script>
+            $(document).ready(function () {
+                var table = $("#table_approval");
+                table.dataTable({
+                });
+            });
+
+        function downloadfile(wo) {
+            window.location.href = "DownloadDocument?wo=" + wo;
+        }
+
+        function displayimage(wo) {
+            if (wo != -1) {
+                var img = document.createElement("img");
+                img.src = "GetImage?wo=" + wo;
+                img.alt = 'some alt text, or leave blank';
+                img.className = "img-fluid";
+                var targetDiv = $("#imagedetail");
+                targetDiv.html(img);
+                $("#modal_Image").modal("toggle");
+            }
+        }
+
+        function submit_data(wo) {
+            $("#modal_verify").modal("show");
+            $("#input_ows_id").val(wo);
+        }
+            $("button[name=btn_yes]").click(function () {
+            $(this).prop("disabled", true);
+            var currow = $(this).closest('tr');
+            var wo = $("#input_ows_id").val();
+            var verify_comment = $("input[name = verify_comment]").val();
+            var submit_by = currow.find('td:eq(9)').text();
+
+            console.log(verify_comment, submit_by);
+            Swal.fire({
+                title: "Are you sure?",
+                text: "To Verify this Request?",
+                icon: "question",
+                showCancelButton: true,
+                cancelButtonText: "No",
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                showLoaderOnConfirm: true,
+                preConfirm: function () {
+                    return new Promise(function (resolve, reject) {
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("AddVerifyPE")",
+                            data: {
+                                wo: wo,
+                                verify_comment: verify_comment
+                            },
+                            datatype: "json",
+                            success: function (result) {
+                                Swal.fire(
+                                    'Done!',
+                                    'Verified Successfully',
+                                    'success'
+                                ).then(() => {
+                                    location.reload();
+                                })
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                Swal.fire(
+                                    'Error!',
+                                    'Error to Verify, Please Contact Admin!',
+                                    'error'
+                                ).then(() => {
+                                    location.reload();
+                                })
+                            }
+                        })
+                    })
+                },
+                allowOutsideClick: () => !Swal.isLoading()
+            })
+        })
+
+            $("button[name = btn_approve]").click(function () {
+                var currow = $(this).closest('tr');
+                var wo = currow.find('td:eq(0)').text();
+                wo = wo.trim();
+                var type = currow.find('td:eq(1)').text();
+                var by = currow.find('td:eq(2)').text();
+                var reason = currow.find('td:eq(3)').text();
+                var deadline = currow.find('td:eq(4)').text();
+                var family = currow.find('td:eq(5)').text();
+                var submit_by = currow.find('td:eq(9)').text();
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "To Approve this Request?",
+                    icon: "question",
+                    showCancelButton: true,
+                    cancelButtonText: "No",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    showLoaderOnConfirm: true,
+                    preConfirm: function () {
+                        return new Promise(function (resolve, reject) {
+                            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("AddApprovalPE")",
+                                data: {
+                                    wo: wo,
+                                    type: type,
+                                    by: by,
+                                    reason: reason,
+                                    deadline: deadline,
+                                    family: family,
+                                    submit_by: submit_by,
+                                },
+                                datatype: "json",
+                                success: function (result) {
+                                    Swal.fire(
+                                        'Done!',
+                                        'Approved Successfully',
+                                        'success'
+                                    ).then(() => {
+                                        location.reload();
+                                    })
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    Swal.fire(
+                                        'Error!',
+                                        'Error to Approve, Please Contact Admin!',
+                                        'error'
+                                    ).then(() => {
+                                        location.reload();
+                                    })
+                                }
+                            })
+                        })
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                })
+            })
+
+        function WO_Detail(wo) {
+            $("#modal_ows").modal("show");
+            $("#table_data").DataTable({
+                pageResize: true,
+                "searching": false,
+                "paging": false,
+                "ajax": {   
+                    "type": "POST",
+                    "url": "@Url.Action("GetCodeData")",
+                    "data": { wo: wo },
+                    "dataSrc": "",
+                },
+                "columns": [
+                    { "data": "code" }
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0, // your case first column
+                        "className": "text-center"
+                    },
+                ]
+
+            });
+            $("#table_data").dataTable().fnDestroy();
+        }
+        $("table_data").css("th.dt - center", "td.dt - center", "{ text- align: center; }");
+
+        function linkdata(wo) {
+             $.ajax({
+                    type: "GET",
+                    url: "@Url.Action("Show_BoxLink", "Approver")",
+                    data:   {
+                                wo: wo
+                            },
+                    success: function(resp){
+                            $("#modal_box_link").modal("show");
+                            var row = "";
+                            $("#box_link").empty();
+                            $.each(resp, function (i, v) {
+                                row += "<option href=" + v.value + ">" + v.text + "</option>";
+                            });
+                            $("#box_link").html(row);
+                            $('.selectpicker').selectpicker('refresh');
+                    }
+             })
+            //$("#modal_box_link").modal("show");
+            //$.getJSON("/SEMB_OWS_Tracking/Approver/Show_BoxLink", { wo: wo }, function (d) {
+            //    var row = "";
+            //    $("#box_link").empty();
+            //    $.each(d, function (i, v) {
+            //        row +=
+            //            "<option href=" + v.value + ">" + v.value + "</option>";
+            //    });
+            //    $("#box_link").html(row);
+            //    $('.selectpicker').selectpicker('refresh');
+            //})
+
+        }
+
+    </script>
+
+}

@@ -1,0 +1,279 @@
+﻿@model NewRequestViewModel
+
+<head>
+<link href="~/lib/adminlte/plugins/jquery-ui/jquery-ui.min.css" rel="stylesheet" />
+</head>
+<body>
+
+    <div class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-12 mt-3">
+                    <div class="card card-success">
+                        <div class="card-header bg-success">
+                            <h5 class="card-title"><i class="fa fa-list"></i> New OWS Request</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <div class="input-group mb-3">
+                                            <input class="form-control text-center" type="text" name="ows_id" id="ows_id" style="text-transform:uppercase" placeholder="Please Input OWS ID" required autofocus />
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="col-8">
+                                    <div class="form-group">
+                                        <div class="">
+                                            <select class="selectpicker form-control" data-live-search="true" title="SELECT FAMILY" name="family" id="family">
+                                                @{
+                                                    foreach (var item in Model.FamilyDetails)
+                                                    {
+                                                        <option>@Html.DisplayFor(model => item.Family)</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <div class="">
+                                            <select class="selectpicker form-control" title="SELECT REASON" name="reason" id="reason">
+                                                <option data-id="1">FMEA</option>
+                                                <option data-id="2">MTM</option>
+                                                <option data-id="3">Others</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <div class="input-group date" name="datetimepicker" id="datetimepicker" data-target-input="nearest">
+                                            <input type="text" class="form-control datepicker-input" data-target="#datetimepicker" placeholder="Select Deadline" style="text-transform:uppercase" />
+                                            <div class="input-group-append" data-target="#datetimepicker" data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <div class="">
+                                            <select class="selectpicker form-control" multiple data-actions-box="true" title="SELECT APPROVERS" name="approver" id="approver">
+                                                <option>MM</option>
+                                                <option>MTM</option>
+                                                <option>QA</option>
+                                                <option>PE</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <textarea class="form-control" rows="5" name="comment" id="comment" placeholder="Comments"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row float-right">
+                                <div class="mt-2">
+                                    <img id="upload_img" src="~/assets/previewicon.png" alt="your image" class="img-fluid" />
+                                </div>
+                                <div class="mt-2 ml-2">
+                                    <div class="input-group mb-3">
+                                        <div class="custom-file">
+                                            <input onchange="readimg(this);" type="file" class="custom-file-input" id="image_upload" name="image_upload" accept="image/png, image/jpeg">
+                                            <label class="custom-file-label" for="image_upload"><i class="fa fa-picture-o"></i> Add Photo</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 ml-2">
+                                    <div class="input-group mb-3">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="file_upload" name="file_upload" multiple>
+                                            <label class="custom-file-label" for="file_upload"><i class="fa fa-file"></i> Add Documents</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-2 ml-2">
+                                    <button class="btn btn-success btn-block" name="btn_add" id="btn_add"><i class="fa fa-arrow-right"></i> Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    @section Scripts
+{
+        
+        <script src="~/lib/adminlte/plugins/jquery-ui/jquery-ui.min.js"></script>
+
+        <script>
+
+        $('.custom-file input').change(function (e) {
+            var files = [];
+            for (var i = 0; i < $(this)[0].files.length; i++) {
+                files.push($(this)[0].files[i].name);
+            }
+            $(this).next('.custom-file-label').html(files.join(', '));
+        });
+
+        function readimg(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                if (input.files[0].size > 3000000) {
+                    Swal.fire({
+                        title: 'Error...',
+                        type: 'error',
+                        text: 'Image size too large! Maximum size is 3000000 bytes',
+                        footer: 'Your image size is ' + input.files[0].size + ' bytes',
+                    })
+                    document.getElementById("upload_img").value = "";
+                }
+                else {
+                    reader.onload = function (e) {
+                        $('#upload_img').attr('src', e.target.result);
+                    };
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+            else {
+                document.getElementById("upload_img").value = "";
+            }
+        }
+
+        $(function () {
+            $("#datetimepicker").datetimepicker({
+                format: 'L'
+            });
+        });
+
+
+        $("button[name=btn_add]").click(function () {
+            var ows_id = $("input[name=ows_id]").val();
+            var reason = $('#reason :selected').text();
+            var deadline = $("#datetimepicker").find("input").val();
+            var family = $("#family option:selected").text();
+            var comment = $('textarea#comment').val();
+            var approvers = [];
+            $('#approver :selected').each(function (i, selected) {
+                approvers[i] = $(selected).text();
+            });
+
+            if (family == '' && reason == '' && comment == '') {
+
+                Swal.fire(
+                    'Error!',
+                    'Error Add New Request!',
+                    'error'
+                );
+
+            } else {
+
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "Please check data!",
+                    icon: "question",
+                    showCancelButton: true,
+                    cancelButtonText: "No",
+                    confirmButtonColor: "#DD6B55",
+                    confirmButtonText: "Yes",
+                    showLoaderOnConfirm: true,
+                    preConfirm: function () {
+                        return new Promise(function (resolve, reject) {
+                            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("AddNewRequest")",
+                                data: {
+                                    ows_id: ows_id,
+                                    reason: reason,
+                                    deadline: deadline,
+                                    family: family,
+                                    comment: comment,
+                                    approvers: approvers
+                                },
+                                dataType: "json",
+                                success: function (id) {
+                                    Swal.fire(
+                                        'Done!',
+                                        'Success to Add New Request',
+                                        'success'
+                                    ).then(() => {
+                                        if ($('#file_upload').get(0).files.length != 0 || $('#image_upload').get(0).files.length != 0) {
+                                            var data = new FormData();
+
+                                            $.each($('#file_upload')[0].files, function (i, file) {
+                                                data.append('files', file);
+                                            });
+
+                                            $.each($('#image_upload')[0].files, function (i, file) {
+                                                data.append('image', file);
+                                            });
+
+                                            data.append('id_string', id);
+                                            $.ajax({
+                                                url: "@Url.Action("SubmitRequestFile")",
+                                                data: data,
+                                                cache: false,
+                                                contentType: false,
+                                                processData: false,
+                                                method: 'POST',
+                                                type: 'POST', // For jQuery < 1.9
+                                                success: function (data) {
+                                                    Swal.fire({
+                                                        icon: 'success',
+                                                        title: 'Your file has been submitted',
+                                                    }).then(function () {
+                                                        location.reload();
+                                                    })
+                                                },
+                                                error: function (error) {
+                                                    Swal.fire({
+                                                        icon: 'error',
+                                                        title: 'Your file fail submitted',
+                                                    })
+                                                }
+                                            });
+
+                                        } else {
+                                            location.reload();
+                                        }
+                                    })
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    Swal.fire(
+                                        'Error!',
+                                        'Error Add New Request!',
+                                        'error'
+                                    ).then(() => {
+                                        location.reload();
+                                    })
+
+                                }
+                            })
+
+                        })
+                    },
+                    allowOutsideClick: () => !Swal.isLoading()
+                })
+            }
+        })
+
+
+
+
+
+        </script>
+    }
+</body>

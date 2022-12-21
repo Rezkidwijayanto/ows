@@ -1,0 +1,312 @@
+﻿@model ViewModel
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fa fa-list"></i> Verified Work Order</h5>
+                    </div>
+                    <div class="card-body">
+                        <table id="table_verified" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th class="text-center">Workorder</th>
+                                    <th class="text-center">Request Type</th>
+                                    <th class="text-center">Request By</th>
+                                    <th class="text-center">Reason</th>
+                                    <th class="text-center">Deadline</th>
+                                    <th class="text-center">Family</th>
+                                    <th class="text-center">Status</th>
+                                    <th class="text-center">Approver Comments</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (Verified verified in Model.VerifiedDetails)
+                                {
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="WO_Detail('@verified.Work_Order')">@verified.Work_Order</button>
+                                    </td>
+                                    <td class="text-center align-middle">@verified.Request_Type</td>
+                                    <td class="text-center align-middle">@verified.Request_By</td>
+                                    <td class="text-center align-middle">@verified.Reason</td>
+                                    <td class="text-center align-middle">@verified.Deadline</td>
+                                    <td class="text-center align-middle">@verified.Family</td>
+                                    <td class="text-center align-middle">@verified.Status</td>
+                                    <td class="text-center align-middle">@verified.VerifyComment</td>
+                                    <td hidden>@verified.Verify_By</td>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-success" name="btn_submit" onclick="submit_data('@verified.Work_Order', '@verified.Verify_By')"><i class="fa fa-arrow-right"></i></button>
+                                    </td>
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Re-Submit -->
+<div id="modal_resubmit" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content" style="display: table;">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-redo fa-pulse"></i> Re-submit Workorder</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    <label><i class="far fa-comment"></i></label>
+                    <input class="form-control text-center" type="text" name="comment" id="comment" placeholder="Comment" />
+                </div>
+                <div class="mt-3">
+                    <label><i class="fas fa-link"></i></label>
+                    <div class="row">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <table id="table_resubmit" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                                        <thead>
+                                            <tr class="bg-success text-white">
+                                                <th class="text-center">Id</th>
+                                                <th class="text-center">Link Box</th>
+                                                <th class="text-center"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" id="input_ows_id" name="input_ows_id">
+            <input type="hidden" id="input_by" name="input_by">
+            <div class="modal-footer">
+                <div class="mt-3">
+                    <button class="btn btn-danger" data-dismiss="modal" name="btn_no">No</button>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success btn-block" name="btn_yes">Yes</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Ows -->
+<div id="modal_ows" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">OWS ID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="table_data" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                    <thead>
+                        <tr class="bg-success text-white">
+                            <th class="text-center align-middle">Code</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <div class="mt-3">
+                    <button class="btn btn-danger" data-dismiss="modal" name="btn_no">OK</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Change -->
+<div id="modal_edit" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-keyboard "></i> Change LinkBox</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-success text-center" role="alert">
+                    <i class='fa fa-check'></i> Successful Edit
+                </div>                
+                <div class="mt-3">
+                    <div class="form-group">
+                        <input class="form-control text-center" type="text" name="edit_data" id="edit_data" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="mt-3">
+                    <button class="btn btn-danger" data-dismiss="modal" name="btn_no">No</button>
+                    <button class="btn btn-primary" name="btn_ok"><i class="fas fa-save"></i></button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            $(".alert").hide();
+            $("#table_verified").dataTable();
+        });
+
+        function submit_data(wo, verify_by) {
+            var oTable = $("#table_resubmit").DataTable({
+                pageResize: true,
+                "searching": false,
+                "paging": false,
+                "ajax": {
+                    "type": "GET",
+                    "url": "@Url.Action("GetLinkBoxVerify")",
+                    "data": { wo: wo },
+                    "dataSrc": "",
+                },
+                "columns": [
+                    { "data": "id" },
+                    { "data": "box_link" },
+
+                    {
+                        "data": null,
+                        wrap: true,
+                        "render": function (box_link) { return '<button class="btn btn-sm btn-warning myButton" data-visitor-wifi="' + box_link + '"><i class="fas fa-edit"></button>'; }
+                    }
+                ]
+            });
+            oTable.column(0).visible(false);
+            $("#input_ows_id").val(wo);
+            $("#input_by").val(verify_by);
+
+
+
+
+            $("#table_resubmit").dataTable().fnDestroy();
+
+            $("#modal_resubmit").modal("show");
+
+            $('#table_resubmit').on('click', '.myButton', function () {
+                var box_link = $(this).closest('tr').find('td:eq(1)').text();
+                var id = $(this).closest('tr').find('td:eq(0)').text();
+                
+                $('#edit_data').val(box_link);
+                $("#modal_edit").modal("show");
+                var wo = $("#input_ows_id").val();
+                $("button[name=btn_ok]").click(function () {
+                    $.ajax({
+                        url: "@Url.Action("ReSubmit")",
+                        type: "POST",
+                        data: {
+                            comment: $('#comment').val(),
+                            wo: wo,
+                            box_link: $('#edit_data').val(),
+                            id: id
+                        },
+                        dataType: "json",
+                        success: function (data) {
+                            $(".alert").show();
+                            $(".alert").delay(1700).slideUp(100, function () {
+                                $("#modal_edit").modal("hide");
+                                oTable.ajax.reload();
+                            });
+
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            Swal.fire(
+                                'Error!',
+                                'Error Change!',
+                                'error'
+                            )
+                        }
+                    });
+                })
+            });
+        }
+
+        $("button[name = btn_yes]").click(function () {
+            var comment = $("input[name = comment]").val();          
+            var wo = $("#input_ows_id").val();
+            var verify_by = $("#input_by").val();
+
+            console.log(comment, wo, verify_by)
+            $.ajax({
+                                type: "POST",
+                                url: "@Url.Action("ConfirmResubmit")",
+                                data: {
+                                    comment: comment,
+                                    wo: wo,
+                                    verify_by: verify_by
+                                },
+                                dataType: "json",
+                                success: function (result) {
+                                    Swal.fire(
+                                        'Done!',
+                                        'Success Re-Submit Work Order!',
+                                        'success'
+                                    ).then(() => {
+                                        location.reload();
+                                    })
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    Swal.fire(
+                                        'Error!',
+                                        'Error Re-Submit Work Order!',
+                                        'error'
+                                    ).then(() => {
+                                        location.reload();
+                                    })
+
+                                }
+                            })
+
+        })
+
+        function WO_Detail(wo) {
+            $("#modal_ows").modal("show");
+            $("#table_data").DataTable({
+                pageResize: true,
+                "searching": false,
+                "paging": false,
+                "ajax": {
+                    "type": "POST",
+                    "url": "@Url.Action("GetCodeData")",
+                    "data": { wo: wo },
+                    "dataSrc": "",
+                },
+                "columns": [
+                    { "data": "code" }
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0, // your case first column
+                        "className": "text-center"
+                    },
+                ]
+
+            });
+        $("#table_data").dataTable().fnDestroy();
+        }
+        $("table_data").css("th.dt - center", "td.dt - center", "{ text- align: center; }");
+    </script>
+
+}

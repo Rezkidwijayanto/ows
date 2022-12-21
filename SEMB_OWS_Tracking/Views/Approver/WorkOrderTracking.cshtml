@@ -1,0 +1,118 @@
+﻿
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fa fa-list"></i> Workorder Tracking</h5>
+                    </div>
+                    <div class="card-body">
+                        <table id="table_open" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th class="text-center align-middle">Workorder</th>
+                                    <th class="text-center align-middle">Request Type</th>
+                                    <th class="text-center align-middle">Request By</th>
+                                    <th class="text-center align-middle">Reason</th>
+                                    <th class="text-center align-middle">Deadline</th>
+                                    <th class="text-center align-middle">Family</th>
+                                    <th class="text-center align-middle">Comments</th>
+                                    <th class="text-center align-middle">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (WOTracking tracking in Model)
+                                {
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="WO_Detail('@tracking.Work_Order')">@tracking.Work_Order</button>
+                                    </td>
+                                    <td class="text-center align-middle">@tracking.Request_Type</td>
+                                    <td class="text-center align-middle">@tracking.Request_By</td>
+                                    <td class="text-center align-middle">@tracking.Reason</td>
+                                    <td class="text-center align-middle">@tracking.Deadline</td>
+                                    <td class="text-center align-middle">@tracking.Family</td>
+                                    <td class="text-center align-middle">@tracking.Comments</td>
+                                    <td class="text-center align-middle">@tracking.Status</td>
+
+                                </tr>
+                                }
+                            </tbody>
+                        </table>
+
+
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<!-- Modal Ows -->
+<div id="modal_ows" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">OWS ID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="table_data" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                    <thead>
+                        <tr class="bg-success text-white">
+                            <th class="text-center align-middle">Code</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>           
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+
+    <script>
+        $(document).ready(function () {
+            $("#table_open").dataTable();
+        });
+
+        function WO_Detail(wo) {
+            $("#modal_ows").modal("show");
+            $("#table_data").DataTable({
+                pageResize: true,
+                "searching": false,
+                "paging": false,
+                "ajax": {   
+                    "type": "POST",
+                    "url": "@Url.Action("GetCodeData")",
+                    "data": { wo: wo },
+                    "dataSrc": "",
+                },
+                "columns": [
+                    { "data": "code" }
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0, // your case first column
+                        "className": "text-center"
+                    },
+                ]
+
+            });
+            $("#table_data").dataTable().fnDestroy();
+        }
+        $("table_data").css("th.dt - center", "td.dt - center", "{ text- align: center; }");
+
+    </script>
+
+}

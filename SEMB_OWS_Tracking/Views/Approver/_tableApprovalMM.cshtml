@@ -1,0 +1,114 @@
+﻿
+<table id="table_approval" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+    <thead>
+        <tr class="bg-success text-white">
+            <th class="text-center align-middle">Workorder</th>
+            <th class="text-center align-middle">Request Type</th>
+            <th class="text-center align-middle">Request By</th>
+            <th class="text-center align-middle">Reason</th>
+            <th class="text-center align-middle">Deadline</th>
+            <th class="text-center align-middle">Family</th>
+            <th class="text-center align-middle">Status</th>
+            <th class="text-center align-middle">Comments</th>
+            <th class="text-center align-middle">Details</th>
+            <th hidden></th>  
+            <th class="text-center align-middle">Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (Approval approverWO in Model)
+        {
+            <tr>
+                <td class="text-center align-middle">
+                    <button class="btn btn-success btn-sm" style="font-size:8pt;" onclick="WO_Detail('@approverWO.Work_Order')">@approverWO.Work_Order</button>
+                </td>
+                <td class="text-center align-middle">@approverWO.Request_Type</td>
+                <td class="text-center align-middle">@approverWO.Request_By</td>
+                <td class="text-center align-middle">@approverWO.Reason</td>
+                <td class="text-center align-middle">@Html.FormatValue("MM/dd/yyyy", approverWO.Deadline.ToString("MM/dd/yyyy"))</td>
+                <td class="text-center align-middle">@approverWO.Family</td>
+                <td class="text-center align-middle">@approverWO.Status</td>
+                <td class="text-center align-middle">@approverWO.Comments</td>
+                <td class="text-center align-middle">
+                    <div class="btn-group">
+                        <button class="btn btn-info btn-sm" style="font-size:8pt" name="btn_details" id="btn_details" onclick="linkdata('@approverWO.Work_Order')"><i class="fa fa-info"></i> Link</button>
+                        <button class="btn btn-warning btn-sm" style="font-size:8pt" onclick="downloadfile('@approverWO.Work_Order')"><i class="fa fa-download"></i> Files</button>
+                        <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="displayimage('@approverWO.Work_Order')"><i class="fa fa-image"></i> Image</button>
+                    </div>
+                </td>
+                <td hidden>@approverWO.Submit_By</td>
+                <td class="text-center align-middle">
+                    <div class="btn-group">
+                        <button class="btn btn-warning btn-sm" style="font-size:8pt" name="btn_verify" onclick="submit_data('@approverWO.Work_Order', '@approverWO.Submit_By')">
+                            <i class="fa fa-check"></i> Verify
+                        </button>
+                        <button class="btn btn-success ml-2 btn-sm" style="font-size:8pt" name="btn_approve">
+                            <i class="fa fa-arrow-right"></i> Approve
+                        </button>
+                    </div>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<script>
+    $("button[name=btn_approve]").click(function () {
+        var currow = $(this).closest('tr');
+        var wo = currow.find('td:eq(0)').text();
+        wo = wo.trim();
+        var type = currow.find('td:eq(1)').text();
+        var by = currow.find('td:eq(2)').text();
+        var reason = currow.find('td:eq(3)').text();
+        var deadline = currow.find('td:eq(4)').text();
+        var family = currow.find('td:eq(5)').text();
+        var submit_by = currow.find('td:eq(9)').text();
+        Swal.fire({
+            title: "Are you sure?",
+            text: "Do you want to approval?",
+            icon: "question",
+            showCancelButton: true,
+            cancelButtonText: "No",
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "Yes",
+            showLoaderOnConfirm: true,
+            preConfirm: function () {
+                return new Promise(function (resolve, reject) {
+                    $.ajax({
+                        type: "POST",
+                        url: "@Url.Action("AddApprovalMM")",
+                        data: {
+                            wo: wo,
+                            type: type,
+                            by: by,
+                            reason: reason,
+                            deadline: deadline,
+                            family: family,
+                            submit_by: submit_by
+                        },
+                        datatype: "json",
+                        success: function (result) {
+                        Swal.fire(
+                            'Done!',
+                            'Approved Successfully',
+                            'success'
+                        ).then(() => {
+                            location.reload();
+                            })
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        Swal.fire(
+                            'Error!',
+                            'Error Approval! Please Contact Admin !',
+                            'error'
+                        ).then(() => {
+                            location.reload();
+                            })
+                        }
+                    })
+                })
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        })
+    })
+</script>

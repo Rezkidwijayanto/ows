@@ -1,0 +1,307 @@
+﻿@using SEMB_OWS_Tracking.Models
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fa fa-list"></i> User Management</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <button class="btn btn-success btn-circle mb-2 ml-auto float-right text-white" name="btn_add"><i class="fa fa-plus"></i> Add User</button>
+                        </div>
+                        <table id="table_open" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                            <thead>
+                                <tr class="bg-success text-white">
+                                    <th class="text-center">ID</th>
+                                    <th class="text-center">SESA ID</th>
+                                    <th class="text-center">Name</th>
+                                    <th class="text-center">Level</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (User user in Model)
+                                {
+                    <tr>
+                        <td class="text-center align-middle">@user.ID</td>
+                        <td class="text-center align-middle">@user.SESA_ID</td>
+                        <td class="text-center align-middle">@user.Name</td>
+                        <td class="text-center align-middle">@user.Level</td>
+                        <td class="text-center align-middle">
+                            <button class="btn btn-warning btn-xs" name="btn_edit"
+                                    onclick="edit_data('@user.ID','@user.SESA_ID', '@user.Name', '@user.Level')">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-xs" name="btn_delete" onclick="delete_data('@user.ID')"><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Add -->
+<div id="modal_add" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Confirm Status</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    <label>SESA ID</label>
+                    <input type="text" name="input_sesa" class="form-control" placeholder="Input SESA ID" required autofocus />
+                </div>
+                <div class="mt-3">
+                    <label>Name</label>
+                    <input type="text" name="input_name" class="form-control" placeholder="Input Name" />
+                </div>
+                <div class="mt-3">
+                    <label>Level</label>
+                    <select class="form-control" name="inputlevel" id="inputlevel">
+                        <option selected disabled>Select Level</option>
+                        <option>operator</option>
+                        <option>approver_mm</option>
+                        <option>approver_mtm</option>
+                        <option>approver_qa</option>
+                        <option>approver_pe</option>
+                        <option>admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="mt-3">
+                    <button class="btn btn-danger btn-block" data-dismiss="modal"><b>&times;</b> Cancel</button>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success btn-block" name="btn_savedata"><i class="fa fa-check"></i> Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Edit -->
+<div id="modal_edit" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">Confirm Status</h5>
+            </div>
+            <div class="modal-body">
+                <div class="mt-3">
+                    <label>ID</label>
+                    <input type="text" name="edit_ID" class="form-control" disabled />
+                </div>
+                <div class="mt-3">
+                    <label>SESA ID</label>
+                    <input type="text" name="edit_sesa" class="form-control" disabled />
+                </div>
+                <div class="mt-3">
+                    <label>Name</label>
+                    <input type="text" name="edit_name" class="form-control" />
+                </div>
+                <div class="mt-3">
+                    <label>Level</label>
+                    <select class="form-control" name="editlevel" id="editlevel">
+                        <option selected disabled>Select Level</option>
+                        <option>operator</option>
+                        <option>approver_mm</option>
+                        <option>approver_mtm</option>
+                        <option>approver_qa</option>
+                        <option>approver_pe</option>
+                        <option>admin</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div class="mt-3">
+                    <button class="btn btn-danger" data-dismiss="modal" name="btn_no"><b>&times;</b> Cancel</button>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-success btn-block" name="btn_editdata"><i class="fa fa-check"></i> Confirm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    <script>
+        //Table User
+        $(document).ready(function () {
+            var table = $("#table_open");
+            table.dataTable({
+                searching: true,
+                orderCellsTop: true
+            });
+        });
+
+        //Add User and Show Modal
+        $("button[name=btn_add]").click(function () {
+            $("#modal_add").modal("show");
+        })
+
+        function edit_data(ID,sesaid, name, level) {
+            $("#modal_edit").modal("show");
+            $("input[name=edit_ID]").val(ID);
+            $("input[name=edit_sesa]").val(sesaid);
+            $("input[name=edit_name]").val(name);
+            $("input[name=edit_level]").val(level);
+        }
+
+        //Delete User
+        function delete_data(ID) {
+            Swal.fire({
+                 title: "Are you sure?",
+                 text: "You will not be able to recover this data!",
+                 type: "question",
+                 showCancelButton: true,
+                 cancelButtonText: "No",
+                 confirmButtonColor: "#DD6B55",
+                 confirmButtonText: "Yes",
+                 showLoaderOnConfirm: true,
+                 preConfirm: function () {
+                     return new Promise(function (resolve, reject) {
+                         $.ajax({
+                             type: "POST",
+                             url: "@Url.Action("DeleteUser")",
+                             data: { ID: ID },
+                             success: function (result) {
+                                 Swal.fire(
+                                     'Done!',
+                                     'Success Delete User!',
+                                     'success'
+                                 ).then(() => {
+                                     location.reload();
+                                 })
+                             },
+                             error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                 Swal.fire(
+                                     'Error!',
+                                     'Error Delete User!',
+                                     'error'
+                                 ).then(() => {
+                                     location.reload();
+                                 })
+                             }
+                         });
+                     })
+                 },
+                 allowOutsideClick: () => !Swal.isLoading()
+             })
+        }
+
+        //Save New User
+        $("#modal_add").on('shown.bs.modal', function (e) {
+            $("button[name=btn_savedata]").click(function () {
+                $(this).off('click');
+                var sesaid = $("input[name=input_sesa]").val();
+                var name = $("input[name=input_name]").val();
+                var level = $('#inputlevel :selected').text();
+
+                $.ajax({
+                    type: "POST",
+                    url: "@Url.Action("AddUser")",
+                    data: {
+                        sesaid: sesaid,
+                        name: name,
+                        level: level
+                    },
+                    dataType: "json",
+                    success: function (result) {
+                        if (result == 1) {
+                            Swal.fire(
+                                'Done!',
+                                'Success Add User!',
+                                'success'
+                            ).then(() => {
+                                console.log(result);
+                                location.reload();
+                            })
+                        }
+                        else {
+                            Swal.fire(
+                                'Error!',
+                                'Error Add User!',
+                                'error'
+                            ).then(() => {
+                                location.reload();
+                            })
+                        }
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        Swal.fire(
+                            'Error!',
+                            'Error Add User!',
+                            'error'
+                        ).then(() => {
+                            location.reload();
+                        })
+                    }
+                })
+            })
+        })
+
+        //Edit User
+        $('button[name = btn_editdata]').click(function () {
+            $(this).off('click');
+            var ID = $("input[name=edit_ID]").val();
+            var sesaid = $("input[name=edit_sesa]").val();
+            var name = $("input[name=edit_name]").val();
+            var level = $('#editlevel :selected').text();
+            $(this).off('click');
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("EditUser")",
+                data: {
+                    ID: ID,
+                    sesaid: sesaid,
+                    name: name,
+                    level: level
+                },
+                dataType: "json",
+                success: function (result) {
+                    if (result == 1) {
+                        Swal.fire(
+                            'Done!',
+                            'Success Edit User!',
+                            'success'
+                        ).then(() => {
+                            console.log(result);
+                            location.reload();
+                        })
+                    }
+                    else {
+                        Swal.fire(
+                            'Error!',
+                            'Error Add User!',
+                            'error'
+                        ).then(() => {
+                            location.reload();
+                        })
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    Swal.fire(
+                        'Error!',
+                        'Error Add User!',
+                        'error'
+                    ).then(() => {
+                        location.reload();
+                    })
+
+                }
+            })
+        })
+
+    </script>
+}

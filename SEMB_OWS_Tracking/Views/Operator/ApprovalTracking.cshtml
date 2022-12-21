@@ -1,0 +1,152 @@
+﻿@model ViewModel
+
+<div class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12 mt-3">
+                <div class="card card-success">
+                    <div class="card-header bg-success">
+                        <h5 class="card-title"><i class="fa fa-list"></i> Approval Tracking</h5>
+                    </div>
+                    <div class="card-body">
+                        <table id="table_open" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                            <thead>
+                            <tr class="bg-success text-white">
+                                <th class="text-center align-middle">Workorder</th>
+                                <th class="text-center align-middle">Family</th>
+                                <th class="text-center align-middle">Product Name</th>
+                                <th class="text-center align-middle">Change Info</th>
+                                <th class="text-center align-middle">Approval MM </th>
+                                <th class="text-center align-middle">Approval MTM</th>
+                                <th class="text-center align-middle">Approval QA</th>
+                                <th class="text-center align-middle">Approval PE</th>
+                                <th class="text-center align-middle">Verify Status</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (Tracking tracking in Model.TrackingDetails)
+                            {
+                                <tr>
+                                    <td class="text-center align-middle">
+                                        <button class="btn btn-success btn-sm" style="font-size:8pt" onclick="WO_Detail('@tracking.Work_Order')">@tracking.Work_Order</button>
+                                    </td>
+                                    <td class="text-center align-middle">@tracking.Family</td>
+                                    <td class="text-center align-middle">@tracking.Product</td>
+                                    <td class="text-center align-middle">@tracking.ChangeInfo</td>
+                                    @if (tracking.MMStatus == "Approved")
+                                    {
+                                        <td class="text-center align-middle bg-success">@tracking.MMStatus</td>
+                                    }else if (tracking.MMStatus == "Open"){
+                                        <td class="text-center align-middle bg-warning">@tracking.MMStatus</td>
+                                    }else if (tracking.MMStatus == "N/A"){
+                                        <td class="text-center align-middle bg-secondary">@tracking.MMStatus</td>
+                                    }else{
+                                        <td class="text-center align-middle bg-danger">@tracking.MMStatus</td>
+                                    }
+                                    @if (tracking.MTMStatus == "Approved")
+                                    {
+                                        <td class="text-center align-middle bg-success">@tracking.MTMStatus</td>
+                                    }else if (tracking.MTMStatus == "Open"){
+                                        <td class="text-center align-middle bg-warning">@tracking.MTMStatus</td>
+                                    }else if (tracking.MTMStatus == "N/A"){
+                                        <td class="text-center align-middle bg-secondary">@tracking.MTMStatus</td>
+                                    }else{
+                                        <td class="text-center align-middle bg-danger">@tracking.MTMStatus</td>
+                                    }
+                                    @if(tracking.QAStatus == "Approved"){
+                                        <td class="text-center align-middle bg-success">@tracking.QAStatus</td>
+                                    }else if (tracking.QAStatus == "Open"){
+                                        <td class="text-center align-middle bg-warning">@tracking.QAStatus</td>
+                                    }else if (tracking.QAStatus == "N/A"){
+                                        <td class="text-center align-middle bg-secondary">@tracking.QAStatus</td>
+                                    }else{
+                                        <td class="text-center align-middle bg-danger">@tracking.QAStatus</td> 
+                                    }
+                                    @if(tracking.PEStatus == "Approved"){
+                                        <td class="text-center align-middle bg-success">@tracking.PEStatus</td>
+                                    }else if (tracking.PEStatus == "Open"){
+                                        <td class="text-center align-middle bg-warning">@tracking.PEStatus</td>
+                                    }else if (tracking.PEStatus == "N/A"){
+                                        <td class="text-center align-middle bg-secondary">@tracking.PEStatus</td>
+                                    }else{
+                                        <td class="text-center align-middle bg-danger">@tracking.PEStatus</td>
+                                    }
+                                    <td class="text-center align-middle">@tracking.VerifiedStatus</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+
+    </div>
+</div>
+
+<!-- Modal Ows -->
+<div id="modal_ows" class="modal fade">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title">OWS ID</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table id="table_data" class="table table-sm table-bordered table-striped" style="font-size:8pt">
+                    <thead>
+                    <tr class="bg-success text-white">
+                    <th class="text-center align-middle">Code</th>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts
+{
+
+    <script>
+        $(document).ready(function () {
+            $("#table_open").dataTable();
+        });
+
+        function WO_Detail(wo) {
+            $("#modal_ows").modal("show");
+            $("#table_data").DataTable({
+                pageResize: true,
+                "searching": false,
+                "paging": false,
+                "ajax": {   
+                    "type": "POST",
+                    "url": "@Url.Action("GetCodeData")",
+                    "data": { wo: wo },
+                    "dataSrc": "",
+                },
+                "columns": [
+                    { "data": "code" }
+                ],
+                'columnDefs': [
+                    {
+                        "targets": 0, // your case first column
+                        "className": "text-center"
+                    },
+                ]
+
+            });
+            $("#table_data").dataTable().fnDestroy();
+        }
+        $("table_data").css("th.dt - center", "td.dt - center", "{ text- align: center; }");
+
+    </script>
+
+}
